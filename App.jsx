@@ -5,7 +5,7 @@ require('./index.pcss');
 module.exports = class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {test: true};
 	}
 
 	render() {
