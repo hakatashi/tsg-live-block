@@ -1,0 +1,12 @@
+{
+    "extends": "@hakatashi",
+    "parser": "babel-eslint",
+    "rules": {
+        "camelcase": "off",
+        "no-console": "off",
+        "max-len": "off",
+        "node/no-unsupported-features": "off",
+        "react/no-multi-comp": "off",
+        "react/forbid-component-props": "off"
+    }
+}
