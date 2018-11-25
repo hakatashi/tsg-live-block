@@ -18,6 +18,15 @@ module.exports = class App extends React.Component {
 			ballY: null,
 			ballVX: -8,
 			ballVY: -10,
+			blocks: Array(25)
+				.fill()
+				.map((_, index) => ({
+					id: index,
+					x: 10 + Math.floor(index / 5) * 20,
+					y: 10 + (index % 5) * 20,
+					width: 10,
+					height: 10,
+				})),
 		};
 		setInterval(this.handleTick, 1000 / 30);
 		setTimeout(() => {
@@ -38,8 +47,8 @@ module.exports = class App extends React.Component {
 		this.setState(({mouse}) => ({
 			ballX: mouse,
 			ballY: 180,
-			ballVX: -8,
-			ballVY: -10,
+			ballVX: -4,
+			ballVY: -5,
 		}));
 	};
 
@@ -51,11 +60,12 @@ module.exports = class App extends React.Component {
 
 	handleTick = () => {
 		if (this.state.ballY !== null) {
-			this.setState(({ballX, ballVX, ballY, ballVY, mouse}) => {
+			this.setState(({ballX, ballVX, ballY, ballVY, mouse, blocks}) => {
 				let newY = ballY;
 				let newVY = ballVY;
 				let newX = ballX;
 				let newVX = ballVX;
+				let newBlocks = blocks;
 
 				newY += ballVY;
 				newX += ballVX;
@@ -65,7 +75,7 @@ module.exports = class App extends React.Component {
 					newVY = -newVY;
 				}
 
-				if (inRange(newY, 180, 185) && inRange(newX, mouse - 15, mouse + 15)) {
+				if (inRange(newY, 180, 190) && inRange(newX, mouse - 15, mouse + 15)) {
 					newY = 360 - newY;
 					newVY = -newVY;
 				}
@@ -80,11 +90,29 @@ module.exports = class App extends React.Component {
 					newVX = -newVX;
 				}
 
+				for (const block of newBlocks) {
+					if (
+						inRange(
+							newX,
+							block.x - block.width / 2,
+							block.x + block.width / 2
+						) &&
+						inRange(
+							newY,
+							block.y - block.height / 2,
+							block.y + block.height / 2
+						)
+					) {
+						newBlocks = newBlocks.filter(({id}) => id !== block.id);
+					}
+				}
+
 				return {
 					ballY: newY,
 					ballVY: newVY,
 					ballX: newX,
 					ballVX: newVX,
+					blocks: newBlocks,
 				};
 			});
 		}
@@ -116,12 +144,23 @@ module.exports = class App extends React.Component {
 					height="5"
 					fill="black"
 				/>
-				<circle
-					cx={this.state.ballX - 1.5}
-					cy={this.state.ballY - 1.5}
-					r="3"
-					fill="black"
-				/>
+				{this.state.ballX !== null && (
+					<circle
+						cx={this.state.ballX - 1.5}
+						cy={this.state.ballY - 1.5}
+						r="3"
+						fill="black"
+					/>
+				)}
+				{this.state.blocks.map(({x, y, width, height}, index) => (
+					<rect
+						key={index}
+						x={x - width / 2}
+						y={y - height / 2}
+						width={width}
+						height={height}
+					/>
+				))}
 			</svg>
 		);
 	}
