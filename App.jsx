@@ -1,4 +1,5 @@
 const React = require('react');
+const inRange = require('lodash/inRange');
 
 require('./index.pcss');
 
@@ -19,6 +20,9 @@ module.exports = class App extends React.Component {
 			ballVY: -10,
 		};
 		setInterval(this.handleTick, 1000 / 30);
+		setTimeout(() => {
+			this.handleMouseDown();
+		}, 1000);
 	}
 
 	handleMouseMove = (event) => {
@@ -34,6 +38,8 @@ module.exports = class App extends React.Component {
 		this.setState(({mouse}) => ({
 			ballX: mouse,
 			ballY: 180,
+			ballVX: -8,
+			ballVY: -10,
 		}));
 	};
 
@@ -45,7 +51,7 @@ module.exports = class App extends React.Component {
 
 	handleTick = () => {
 		if (this.state.ballY !== null) {
-			this.setState(({ballX, ballVX, ballY, ballVY}) => {
+			this.setState(({ballX, ballVX, ballY, ballVY, mouse}) => {
 				let newY = ballY;
 				let newVY = ballVY;
 				let newX = ballX;
@@ -59,8 +65,8 @@ module.exports = class App extends React.Component {
 					newVY = -newVY;
 				}
 
-				if (newY > 200) {
-					newY = 400 - newY;
+				if (inRange(newY, 180, 185) && inRange(newX, mouse - 15, mouse + 15)) {
+					newY = 360 - newY;
 					newVY = -newVY;
 				}
 
