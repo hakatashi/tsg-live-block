@@ -176,6 +176,18 @@ module.exports = class App extends React.Component {
 						height={height}
 					/>
 				))}
+				{this.state.blocks.length === 0 && (
+					<text
+						x="50"
+						y="100"
+						fill="red"
+						fontWeight="bold"
+						textAnchor="middle"
+						fontSize="30"
+					>
+						CLEAR!
+					</text>
+				)}
 			</svg>
 		);
 	}
