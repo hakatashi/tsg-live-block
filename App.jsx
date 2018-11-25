@@ -13,7 +13,10 @@ module.exports = class App extends React.Component {
 		super(props);
 		this.state = {
 			mouse: 50,
+			ballX: null,
+			ballY: null,
 		};
+		setInterval(this.handleTick, 1000 / 30);
 	}
 
 	handleMouseMove = (event) => {
@@ -25,10 +28,25 @@ module.exports = class App extends React.Component {
 		});
 	};
 
+	handleMouseDown = () => {
+		this.setState(({mouse}) => ({
+			ballX: mouse,
+			ballY: 180,
+		}));
+	};
+
 	handleRef = (node) => {
 		this.svg = node;
 		this.point = node.createSVGPoint();
 		this.ctm = node.getScreenCTM();
+	};
+
+	handleTick = () => {
+		if (this.state.ballY !== null) {
+			this.setState(({ballY}) => ({
+				ballY: ballY - 1,
+			}));
+		}
 	};
 
 	render() {
@@ -39,6 +57,7 @@ module.exports = class App extends React.Component {
 				viewBox="0 0 100 200"
 				onMouseMove={this.handleMouseMove}
 				ref={this.handleRef}
+				onMouseDown={this.handleMouseDown}
 			>
 				<rect
 					x="0"
@@ -54,6 +73,12 @@ module.exports = class App extends React.Component {
 					y="180"
 					width="30"
 					height="5"
+					fill="black"
+				/>
+				<circle
+					cx={this.state.ballX - 1.5}
+					cy={this.state.ballY - 1.5}
+					r="3"
 					fill="black"
 				/>
 			</svg>
