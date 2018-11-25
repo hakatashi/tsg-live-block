@@ -129,6 +129,11 @@ module.exports = class App extends React.Component {
 							if (block.type === 'inverse') {
 								newIsInversed = !newIsInversed;
 							}
+
+							if (newBlocks.length === 0) {
+								newX = null;
+								newY = null;
+							}
 						}
 					}
 
