@@ -16,9 +16,30 @@ module.exports = class App extends React.Component {
 		};
 	}
 
+	handleMouseMove = (event) => {
+		this.point.x = event.clientX;
+		this.point.y = event.clientY;
+		const point = this.point.matrixTransform(this.ctm.inverse());
+		this.setState({
+			mouse: Math.clamp(15, point.x, 85),
+		});
+	};
+
+	handleRef = (node) => {
+		this.svg = node;
+		this.point = node.createSVGPoint();
+		this.ctm = node.getScreenCTM();
+	};
+
 	render() {
 		return (
-			<svg width="100%" height="100%" viewBox="0 0 100 200">
+			<svg
+				width="100%"
+				height="100%"
+				viewBox="0 0 100 200"
+				onMouseMove={this.handleMouseMove}
+				ref={this.handleRef}
+			>
 				<rect
 					x="0"
 					y="0"
