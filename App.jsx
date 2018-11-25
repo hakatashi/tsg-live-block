@@ -15,6 +15,8 @@ module.exports = class App extends React.Component {
 			mouse: 50,
 			ballX: null,
 			ballY: null,
+			ballVX: -8,
+			ballVY: -10,
 		};
 		setInterval(this.handleTick, 1000 / 30);
 	}
@@ -43,9 +45,42 @@ module.exports = class App extends React.Component {
 
 	handleTick = () => {
 		if (this.state.ballY !== null) {
-			this.setState(({ballY}) => ({
-				ballY: ballY - 1,
-			}));
+			this.setState(({ballX, ballVX, ballY, ballVY}) => {
+				let newY = ballY;
+				let newVY = ballVY;
+				let newX = ballX;
+				let newVX = ballVX;
+
+				newY += ballVY;
+				newX += ballVX;
+
+				if (newY < 0) {
+					newY = -newY;
+					newVY = -newVY;
+				}
+
+				if (newY > 200) {
+					newY = 400 - newY;
+					newVY = -newVY;
+				}
+
+				if (newX < 0) {
+					newX = -newX;
+					newVX = -newVX;
+				}
+
+				if (newX > 100) {
+					newX = 200 - newX;
+					newVX = -newVX;
+				}
+
+				return {
+					ballY: newY,
+					ballVY: newVY,
+					ballX: newX,
+					ballVX: newVX,
+				};
+			});
 		}
 	};
 
