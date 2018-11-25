@@ -184,7 +184,7 @@ module.exports = class App extends React.Component {
 					y="180"
 					width="30"
 					height="5"
-					fill="black"
+					fill={this.state.isInversed ? 'red' : 'black'}
 				/>
 				{this.state.ballX !== null && (
 					<circle
