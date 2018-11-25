@@ -26,10 +26,16 @@ module.exports = class App extends React.Component {
 					y: 10 + (index % 5) * 20,
 					width: 10,
 					height: 10,
-					type: Math.random() < 0.2 ? 'inverse' : 'normal',
+					type:
+						Math.random() < 0.2
+							? 'inverse'
+							: Math.random() < 0.4
+								? 'speed'
+								: 'normal',
 				})),
 			scores: 0,
 			isInversed: false,
+			speedTurns: 0,
 		};
 		setInterval(this.handleTick, 1000 / 30);
 		setTimeout(() => {
@@ -41,7 +47,6 @@ module.exports = class App extends React.Component {
 		this.point.x = event.clientX;
 		this.point.y = event.clientY;
 		const point = this.point.matrixTransform(this.ctm.inverse());
-		console.log(this.state);
 		this.setState(({isInversed}) => ({
 			mouse: Math.clamp(15, isInversed ? 100 - point.x : point.x, 85),
 		}));
@@ -65,7 +70,17 @@ module.exports = class App extends React.Component {
 	handleTick = () => {
 		if (this.state.ballY !== null) {
 			this.setState(
-				({ballX, ballVX, ballY, ballVY, scores, mouse, blocks, isInversed}) => {
+				({
+					ballX,
+					ballVX,
+					ballY,
+					ballVY,
+					scores,
+					mouse,
+					blocks,
+					isInversed,
+					speedTurns,
+				}) => {
 					let newY = ballY;
 					let newVY = ballVY;
 					let newX = ballX;
@@ -73,9 +88,17 @@ module.exports = class App extends React.Component {
 					let newBlocks = blocks;
 					let newScores = scores;
 					let newIsInversed = isInversed;
+					let newSpeedTurns = speedTurns;
 
 					newY += ballVY;
 					newX += ballVX;
+
+					if (newSpeedTurns > 0) {
+						newY += ballVY;
+						newX += ballVX;
+					}
+
+					newSpeedTurns = Math.max(newSpeedTurns - 1, 0);
 
 					if (newX < 0) {
 						newX = -newX;
@@ -130,6 +153,10 @@ module.exports = class App extends React.Component {
 								newIsInversed = !newIsInversed;
 							}
 
+							if (block.type === 'speed') {
+								newSpeedTurns += 15;
+							}
+
 							if (newBlocks.length === 0) {
 								newX = null;
 								newY = null;
@@ -159,6 +186,7 @@ module.exports = class App extends React.Component {
 						blocks: newBlocks,
 						scores: newScores,
 						isInversed: newIsInversed,
+						speedTurns: newSpeedTurns,
 					};
 				}
 			);
@@ -196,7 +224,7 @@ module.exports = class App extends React.Component {
 						cx={this.state.ballX - 1.5}
 						cy={this.state.ballY - 1.5}
 						r="3"
-						fill="black"
+						fill={this.state.speedTurns > 0 ? 'blue' : 'black'}
 					/>
 				)}
 				{this.state.blocks.map(({x, y, width, height, type}, index) => (
@@ -206,7 +234,9 @@ module.exports = class App extends React.Component {
 						y={y - height / 2}
 						width={width}
 						height={height}
-						fill={type === 'inverse' ? 'red' : 'black'}
+						fill={
+							type === 'inverse' ? 'red' : type === 'speed' ? 'blue' : 'black'
+						}
 					/>
 				))}
 				<text
