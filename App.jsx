@@ -11,10 +11,31 @@ require('core-js/stage/1');
 module.exports = class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {test: true};
+		this.state = {
+			mouse: 50,
+		};
 	}
 
 	render() {
-		return <svg width="100%" height="100%" viewBox="0 0 100 200"/>;
+		return (
+			<svg width="100%" height="100%" viewBox="0 0 100 200">
+				<rect
+					x="0"
+					y="0"
+					width="100"
+					height="200"
+					fill="white"
+					stroke="black"
+					strokeWidth="1"
+				/>
+				<rect
+					x={this.state.mouse - 15}
+					y="180"
+					width="30"
+					height="5"
+					fill="black"
+				/>
+			</svg>
+		);
 	}
 };
