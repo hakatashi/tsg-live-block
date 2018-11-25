@@ -70,16 +70,6 @@ module.exports = class App extends React.Component {
 				newY += ballVY;
 				newX += ballVX;
 
-				if (newY < 0) {
-					newY = -newY;
-					newVY = -newVY;
-				}
-
-				if (inRange(newY, 180, 190) && inRange(newX, mouse - 15, mouse + 15)) {
-					newY = 360 - newY;
-					newVY = -newVY;
-				}
-
 				if (newX < 0) {
 					newX = -newX;
 					newVX = -newVX;
@@ -88,6 +78,19 @@ module.exports = class App extends React.Component {
 				if (newX > 100) {
 					newX = 200 - newX;
 					newVX = -newVX;
+				}
+
+				if (newY < 0) {
+					newY = -newY;
+					newVY = -newVY;
+				}
+
+				if (inRange(newY, 180, 190) && inRange(newX, mouse - 15, mouse + 15)) {
+					const vr = 5;
+					const vtheta = (((newX - mouse) / 30) * Math.PI) / 2;
+					newY = 360 - newY;
+					newVX = Math.sin(vtheta) * vr;
+					newVY = -Math.cos(vtheta) * vr;
 				}
 
 				for (const block of newBlocks) {
