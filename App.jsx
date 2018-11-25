@@ -107,10 +107,19 @@ module.exports = class App extends React.Component {
 						newVY = -newVY;
 					}
 
-					newBlocks = newBlocks.map((block) => ({
-						...block,
-						x: block.x + 0.03,
-					}));
+					newBlocks = newBlocks.map((block) => {
+						const dx = block.x - 50;
+						const dy = block.y - 50;
+
+						const distance = Math.sqrt(dx ** 2 + dy ** 2);
+						const theta = Math.atan2(dx, dy);
+
+						return {
+							...block,
+							x: 50 + Math.sin(theta + 1) * distance,
+							y: 50 + Math.cos(theta + 1) * distance,
+						};
+					});
 				}
 
 				return {
