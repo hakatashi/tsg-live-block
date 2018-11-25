@@ -95,6 +95,12 @@ module.exports = class App extends React.Component {
 					newVY = -Math.cos(vtheta) * vr;
 				}
 
+				if (newY > 210) {
+					newX = null;
+					newY = null;
+					newScores -= 5;
+				}
+
 				for (const block of newBlocks) {
 					if (
 						inRange(
