@@ -27,6 +27,7 @@ module.exports = class App extends React.Component {
 					width: 10,
 					height: 10,
 				})),
+			scores: 0,
 		};
 		setInterval(this.handleTick, 1000 / 30);
 		setTimeout(() => {
@@ -60,12 +61,13 @@ module.exports = class App extends React.Component {
 
 	handleTick = () => {
 		if (this.state.ballY !== null) {
-			this.setState(({ballX, ballVX, ballY, ballVY, mouse, blocks}) => {
+			this.setState(({ballX, ballVX, ballY, ballVY, scores, mouse, blocks}) => {
 				let newY = ballY;
 				let newVY = ballVY;
 				let newX = ballX;
 				let newVX = ballVX;
 				let newBlocks = blocks;
+				let newScores = scores;
 
 				newY += ballVY;
 				newX += ballVX;
@@ -107,6 +109,7 @@ module.exports = class App extends React.Component {
 						)
 					) {
 						newBlocks = newBlocks.filter(({id}) => id !== block.id);
+						newScores++;
 						newVY = -newVY;
 					}
 				}
@@ -131,6 +134,7 @@ module.exports = class App extends React.Component {
 					ballX: newX,
 					ballVX: newVX,
 					blocks: newBlocks,
+					scores: newScores,
 				};
 			});
 		}
@@ -179,6 +183,16 @@ module.exports = class App extends React.Component {
 						height={height}
 					/>
 				))}
+				<text
+					x="50"
+					y="190"
+					fill="block"
+					textAnchor="middle"
+					fontSize="5"
+					fontWeight="bold"
+				>
+					Score: {this.state.scores}
+				</text>
 				{this.state.blocks.length === 0 && (
 					<text
 						x="50"
