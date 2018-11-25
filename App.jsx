@@ -106,6 +106,11 @@ module.exports = class App extends React.Component {
 						newBlocks = newBlocks.filter(({id}) => id !== block.id);
 						newVY = -newVY;
 					}
+
+					newBlocks = newBlocks.map((block) => ({
+						...block,
+						x: block.x + 0.03,
+					}));
 				}
 
 				return {
