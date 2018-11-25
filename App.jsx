@@ -26,8 +26,10 @@ module.exports = class App extends React.Component {
 					y: 10 + (index % 5) * 20,
 					width: 10,
 					height: 10,
+					type: Math.random() < 0.2 ? 'inverse' : 'normal',
 				})),
 			scores: 0,
+			isInversed: false,
 		};
 		setInterval(this.handleTick, 1000 / 30);
 		setTimeout(() => {
@@ -39,9 +41,10 @@ module.exports = class App extends React.Component {
 		this.point.x = event.clientX;
 		this.point.y = event.clientY;
 		const point = this.point.matrixTransform(this.ctm.inverse());
-		this.setState({
-			mouse: Math.clamp(15, point.x, 85),
-		});
+		console.log(this.state);
+		this.setState(({isInversed}) => ({
+			mouse: Math.clamp(15, isInversed ? 100 - point.x : point.x, 85),
+		}));
 	};
 
 	handleMouseDown = () => {
@@ -61,88 +64,99 @@ module.exports = class App extends React.Component {
 
 	handleTick = () => {
 		if (this.state.ballY !== null) {
-			this.setState(({ballX, ballVX, ballY, ballVY, scores, mouse, blocks}) => {
-				let newY = ballY;
-				let newVY = ballVY;
-				let newX = ballX;
-				let newVX = ballVX;
-				let newBlocks = blocks;
-				let newScores = scores;
+			this.setState(
+				({ballX, ballVX, ballY, ballVY, scores, mouse, blocks, isInversed}) => {
+					let newY = ballY;
+					let newVY = ballVY;
+					let newX = ballX;
+					let newVX = ballVX;
+					let newBlocks = blocks;
+					let newScores = scores;
+					let newIsInversed = isInversed;
 
-				newY += ballVY;
-				newX += ballVX;
+					newY += ballVY;
+					newX += ballVX;
 
-				if (newX < 0) {
-					newX = -newX;
-					newVX = -newVX;
-				}
+					if (newX < 0) {
+						newX = -newX;
+						newVX = -newVX;
+					}
 
-				if (newX > 100) {
-					newX = 200 - newX;
-					newVX = -newVX;
-				}
+					if (newX > 100) {
+						newX = 200 - newX;
+						newVX = -newVX;
+					}
 
-				if (newY < 0) {
-					newY = -newY;
-					newVY = -newVY;
-				}
-
-				if (inRange(newY, 180, 190) && inRange(newX, mouse - 15, mouse + 15)) {
-					const vr = 5;
-					const vtheta = (((newX - mouse) / 30) * Math.PI) / 2;
-					newY = 360 - newY;
-					newVX = Math.sin(vtheta) * vr;
-					newVY = -Math.cos(vtheta) * vr;
-				}
-
-				if (newY > 210) {
-					newX = null;
-					newY = null;
-					newScores -= 5;
-				}
-
-				for (const block of newBlocks) {
-					if (
-						inRange(
-							newX,
-							block.x - block.width / 2,
-							block.x + block.width / 2
-						) &&
-						inRange(
-							newY,
-							block.y - block.height / 2,
-							block.y + block.height / 2
-						)
-					) {
-						newBlocks = newBlocks.filter(({id}) => id !== block.id);
-						newScores++;
+					if (newY < 0) {
+						newY = -newY;
 						newVY = -newVY;
 					}
-				}
 
-				newBlocks = newBlocks.map((block) => {
-					const dx = block.x - 50;
-					const dy = block.y - 50;
+					if (
+						inRange(newY, 180, 190) &&
+						inRange(newX, mouse - 15, mouse + 15)
+					) {
+						const vr = 5;
+						const vtheta = (((newX - mouse) / 30) * Math.PI) / 2;
+						newY = 360 - newY;
+						newVX = Math.sin(vtheta) * vr;
+						newVY = -Math.cos(vtheta) * vr;
+					}
 
-					const distance = Math.sqrt(dx ** 2 + dy ** 2);
-					const theta = Math.atan2(dx, dy);
+					if (newY > 210) {
+						newX = null;
+						newY = null;
+						newScores -= 5;
+					}
+
+					for (const block of newBlocks) {
+						if (
+							inRange(
+								newX,
+								block.x - block.width / 2,
+								block.x + block.width / 2
+							) &&
+							inRange(
+								newY,
+								block.y - block.height / 2,
+								block.y + block.height / 2
+							)
+						) {
+							newBlocks = newBlocks.filter(({id}) => id !== block.id);
+							newScores++;
+							newVY = -newVY;
+
+							if (block.type === 'inverse') {
+								newIsInversed = !newIsInversed;
+							}
+						}
+					}
+
+					newBlocks = newBlocks.map((block) => {
+						const dx = block.x - 50;
+						const dy = block.y - 50;
+
+						const distance = Math.sqrt(dx ** 2 + dy ** 2);
+						const theta = Math.atan2(dx, dy);
+
+						return {
+							...block,
+							x: 50 + Math.sin(theta + 0.01) * distance,
+							y: 50 + Math.cos(theta + 0.01) * distance,
+						};
+					});
 
 					return {
-						...block,
-						x: 50 + Math.sin(theta + 0.01) * distance,
-						y: 50 + Math.cos(theta + 0.01) * distance,
+						ballY: newY,
+						ballVY: newVY,
+						ballX: newX,
+						ballVX: newVX,
+						blocks: newBlocks,
+						scores: newScores,
+						isInversed: newIsInversed,
 					};
-				});
-
-				return {
-					ballY: newY,
-					ballVY: newVY,
-					ballX: newX,
-					ballVX: newVX,
-					blocks: newBlocks,
-					scores: newScores,
-				};
-			});
+				}
+			);
 		}
 	};
 
@@ -180,13 +194,14 @@ module.exports = class App extends React.Component {
 						fill="black"
 					/>
 				)}
-				{this.state.blocks.map(({x, y, width, height}, index) => (
+				{this.state.blocks.map(({x, y, width, height, type}, index) => (
 					<rect
 						key={index}
 						x={x - width / 2}
 						y={y - height / 2}
 						width={width}
 						height={height}
+						fill={type === 'inverse' ? 'red' : 'black'}
 					/>
 				))}
 				<text
